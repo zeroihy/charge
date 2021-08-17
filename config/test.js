@@ -1,6 +1,7 @@
-// a=
-function multiply(a, b) {
-    b.toString()
+function containsNumber (str) {
+    let reg = /\d/;
+    let result = reg.test(str);
+    console.log(result);
+    return result
 }
-let str1=3,str2=0.0001;
-multiply(str1,str2)
+containsNumber("dsdasda111")

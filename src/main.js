@@ -10,8 +10,8 @@ import Vconsole from 'vconsole'
 let vConsole = new Vconsole()
 Vue.use(vConsole)
 // 引入的多的话
-import { Button, Row, Col, CellGroup, Icon, Field, Tab, Tabs, Toast } from 'vant'
-Vue.use(Button).use(Row).use(Col).use(CellGroup).use(Icon).use(Field).use(Tab).use(Tabs).use(Toast)
+import { Button, Row, Col, CellGroup, Icon, Field, Tab, Tabs, Toast, Loading } from 'vant'
+Vue.use(Button).use(Row).use(Col).use(CellGroup).use(Icon).use(Field).use(Tab).use(Tabs).use(Toast).use(Loading)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

@@ -10,9 +10,9 @@ const store = new Vuex.Store({
         loginUser: {
             curOrder: {}
         },
+        loading: true,
         appId: "wx527d9308300170f5",
-
-        turntableId: null,
+        serialNumber: null,
         code: null,
         text: "微信推送的文本",
     },
