@@ -9,9 +9,8 @@ Vue.prototype.$axios = axios
 import Vconsole from 'vconsole'
 let vConsole = new Vconsole()
 Vue.use(vConsole)
-// 引入的多的话
-import { Button, Row, Col, CellGroup, Icon, Field, Tab, Tabs, Toast, Loading } from 'vant'
-Vue.use(Button).use(Row).use(Col).use(CellGroup).use(Icon).use(Field).use(Tab).use(Tabs).use(Toast).use(Loading)
+import { Button, Row, Col, CellGroup, Icon, Field, Tab, Tabs, Toast, Loading, Dialog, Swipe, SwipeItem } from 'vant'
+Vue.use(Button).use(Row).use(Col).use(CellGroup).use(Icon).use(Field).use(Tab).use(Tabs).use(Toast).use(Loading).use(Dialog).use(Swipe).use(SwipeItem)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

@@ -57,7 +57,7 @@
             心愿支付</van-button>
         <!-- 游戏 -->
         <van-cell-group title="免费行酒令"> </van-cell-group>
-        <div class="radio">
+        <div class="gameRadio">
             <div v-for="(item, index) in gameList" :key="index" @click="gameClick(index)"
                 :class="item.show?'gameSInfo':'gameInfo'">
                 <p>{{item.title}}</p>
@@ -504,6 +504,57 @@
                 font-size: 10px;
             }
         }
+        .gameRadio {
+            width: 100%;
+            margin: 0 auto;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            overflow-x: scroll;
+            .gameInfo {
+                width: 30%;
+                border: 1px solid rgb(218, 222, 224);
+                height: 50px;
+                display: flex;
+                margin-top: 10px;
+                margin-left: 4%;
+                border-radius: 5px;
+                background: #fff;
+                position: relative;
+                flex-shrink: 0;
+                p {
+                    width: 100%;
+                    height: 100%;
+                    line-height: 50px;
+                    text-align: center;
+                }
+            }
+            .gameSInfo {
+                width: 30%;
+                height: 50px;
+                display: flex;
+                margin-top: 10px;
+                margin-left: 4%;
+                border-radius: 5px;
+                // background: #409eff;
+                border: 1px solid #409eff;
+                background: #fff;
+                position: relative;
+                flex-shrink: 0;
+                .success {
+                    position: absolute;
+                    top: 2px;
+                    right: 2px;
+                }
+                p {
+                    width: 100%;
+                    height: 100%;
+                    line-height: 50px;
+                    text-align: center;
+                }
+            }
+        }
         .radio {
             width: 100%;
             margin: 0 auto;
@@ -544,46 +595,6 @@
                     position: absolute;
                     top: 2px;
                     right: 2px;
-                }
-            }
-            .gameInfo {
-                width: 20%;
-                border: 1px solid rgb(218, 222, 224);
-                height: 50px;
-                display: flex;
-                margin-top: 10px;
-                margin-left: 4%;
-                border-radius: 5px;
-                background: #fff;
-                position: relative;
-                p {
-                    width: 100%;
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
-                }
-            }
-            .gameSInfo {
-                width: 20%;
-                height: 50px;
-                display: flex;
-                margin-top: 10px;
-                margin-left: 4%;
-                border-radius: 5px;
-                // background: #409eff;
-                border: 1px solid #409eff;
-                background: #fff;
-                position: relative;
-                .success {
-                    position: absolute;
-                    top: 2px;
-                    right: 2px;
-                }
-                p {
-                    width: 100%;
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
                 }
             }
         }
