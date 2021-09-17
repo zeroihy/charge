@@ -51,13 +51,14 @@
         <!-- 心愿 -->
         <van-cell-group title="请输入心语心愿"> </van-cell-group>
         <van-field v-model="value" label="心语心愿" placeholder="请输入内容" />
-        <div class="toastMon">本次支付：{{loginUser.clientConfig.textPrice}}元</div>
-        <van-button type="info" style="width: 80%; margin-left: 10%" round
+        <div class="toastMon" v-if="loginUser.clientConfig.textPrice!='0'">
+            本次支付：{{loginUser.clientConfig.textPrice}}元</div>
+        <van-button type="info" style="width: 80%; margin-left: 10%;margin-top:10px" round
             @click="wishPay()">
-            心愿支付</van-button>
+            {{wishPayText}}</van-button>
         <!-- 游戏 -->
         <van-cell-group title="免费行酒令"> </van-cell-group>
-        <div class="gameRadio">
+        <div class="radio">
             <div v-for="(item, index) in gameList" :key="index" @click="gameClick(index)"
                 :class="item.show?'gameSInfo':'gameInfo'">
                 <p>{{item.title}}</p>
@@ -100,6 +101,7 @@
                 out_trade_no: null,
                 clientConfig: {},
                 showImg: false,
+                wishPayText: "免费发送心愿",
             };
         },
         created() {
@@ -146,6 +148,9 @@
                                 });
                             }
                         );
+                        if (this.loginUser.clientConfig.textPrice != "0") {
+                            this.wishPayText = "心愿支付";
+                        }
                         this.$store.state.loading = false;
                         this.initCurOrder(this.loginUser.curOrder);
                     } else {
@@ -504,57 +509,6 @@
                 font-size: 10px;
             }
         }
-        .gameRadio {
-            width: 100%;
-            margin: 0 auto;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            flex-wrap: nowrap;
-            overflow-x: scroll;
-            .gameInfo {
-                width: 30%;
-                border: 1px solid rgb(218, 222, 224);
-                height: 50px;
-                display: flex;
-                margin-top: 10px;
-                margin-left: 4%;
-                border-radius: 5px;
-                background: #fff;
-                position: relative;
-                flex-shrink: 0;
-                p {
-                    width: 100%;
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
-                }
-            }
-            .gameSInfo {
-                width: 30%;
-                height: 50px;
-                display: flex;
-                margin-top: 10px;
-                margin-left: 4%;
-                border-radius: 5px;
-                // background: #409eff;
-                border: 1px solid #409eff;
-                background: #fff;
-                position: relative;
-                flex-shrink: 0;
-                .success {
-                    position: absolute;
-                    top: 2px;
-                    right: 2px;
-                }
-                p {
-                    width: 100%;
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
-                }
-            }
-        }
         .radio {
             width: 100%;
             margin: 0 auto;
@@ -595,6 +549,46 @@
                     position: absolute;
                     top: 2px;
                     right: 2px;
+                }
+            }
+            .gameInfo {
+                width: 20%;
+                border: 1px solid rgb(218, 222, 224);
+                height: 50px;
+                display: flex;
+                margin-top: 10px;
+                margin-left: 4%;
+                border-radius: 5px;
+                background: #fff;
+                position: relative;
+                p {
+                    width: 100%;
+                    height: 100%;
+                    line-height: 50px;
+                    text-align: center;
+                }
+            }
+            .gameSInfo {
+                width: 20%;
+                height: 50px;
+                display: flex;
+                margin-top: 10px;
+                margin-left: 4%;
+                border-radius: 5px;
+                // background: #409eff;
+                border: 1px solid #409eff;
+                background: #fff;
+                position: relative;
+                .success {
+                    position: absolute;
+                    top: 2px;
+                    right: 2px;
+                }
+                p {
+                    width: 100%;
+                    height: 100%;
+                    line-height: 50px;
+                    text-align: center;
                 }
             }
         }
