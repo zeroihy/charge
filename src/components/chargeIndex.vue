@@ -258,9 +258,15 @@
                     params: params,
                 }).then((res) => {
                     console.log(res);
+                    console.log(res.data);
                     if (res.data.success) {
-                        this.weixinInit(res.data.result, 0);
-                        // this.$toast.success("心愿发送完成");
+                        if (!res.data.result.out_trade_no) {
+                            this.$toast.success("心愿发送成功");
+                        } else {
+                            this.weixinInit(res.data.result, 0);
+                        }
+
+                        //
                     } else {
                         // console.log(res.message);
                         this.$toast.fail(res.data.message);
@@ -373,7 +379,7 @@
                                             this.$toast.success(
                                                 "未查询到相关订单，请重新扫码"
                                             );
-                                            clearInterval(this.thTimes);
+                                            clearInterval(thTimes);
                                         }
                                     }
                                 });
