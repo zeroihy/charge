@@ -15,26 +15,30 @@
         </div>
         <!-- 套餐 -->
         <div v-show="!curOrder">
-            <van-cell-group title="请选择套餐"> </van-cell-group>
+            <van-cell-group title="全自动转盘"> </van-cell-group>
             <div class="radio">
-                <div class="radioInfo"
+                <div class="radioInfo" v-for="(item, index) in testList" :key="index"
+                    @click="radioClick(index)">
+                    <!-- <div class="radioInfo"
                     v-for="(item, index) in loginUser.clientConfig.turntableConfigs"
-                    :key="index" @click="radioClick(index)">
+                    :key="index" @click="radioClick(index)"> -->
                     <div class="left">
-                        <p>{{ item.price }}元</p>
                         <p>{{ item.time }}分钟</p>
                     </div>
-                    <div class="right">
-                        {{ item.name }}
+                    <div class="middle">
+                        <p>{{ item.price }}元</p>
                     </div>
+                    <!-- <div class="right">
+                        {{ item.name }}
+                    </div> -->
                     <van-icon name="success" color="#1daaf6" class="success"
                         v-show="item.show" />
                 </div>
             </div>
             <div class="toastMon" v-show="toastMon&&!curOrder">本次支付：{{ toastMon }}元</div>
             <van-button type="info" style="width: 80%; margin-left: 10%" round
-                v-show="!curOrder" @click="start()">
-                套餐支付</van-button>
+                v-show="!curOrder" @click="start()">支付启动
+            </van-button>
         </div>
         <!-- 转盘操作 -->
         <div class="round" v-show="curOrder">
@@ -55,10 +59,10 @@
             本次支付：{{loginUser.clientConfig.textPrice}}元</div>
         <van-button type="info" style="width: 80%; margin-left: 10%;margin-top:10px" round
             @click="wishPay()">
-            {{wishPayText}}</van-button>
+            {{wishPayText}}（时间为60分钟）</van-button>
         <!-- 游戏 -->
         <van-cell-group title="免费行酒令"> </van-cell-group>
-        <div class="radio">
+        <div class="radio1">
             <div v-for="(item, index) in gameList" :key="index" @click="gameClick(index)"
                 :class="item.show?'gameSInfo':'gameInfo'">
                 <p>{{item.title}}</p>
@@ -68,10 +72,10 @@
         </div>
         <van-button type="info" style="width: 80%; margin-left: 10%" round
             @click="gameStart()">
-            免费开始游戏
+            免费开始
         </van-button>
         <div @click="concern()" class="concernClass" v-show="!loginUser.subscribeTime">
-            点此关注公众号即可免费开始游戏，如已关注，请重新扫码进入</div>
+            点此关注公众号即可免费开始行酒令，如已关注，请重新扫码进入</div>
         <van-dialog v-model="showImg" class="dialog" title="长按识别二维码" show-confirm-button>
             <img src="../assets/logoImg.jpg" />
         </van-dialog>
@@ -94,6 +98,23 @@
                 loginUser: {
                     clientConfig: {},
                 },
+                testList: [
+                    {
+                        time: 60,
+                        price: 2,
+                        name: "体验转盘1",
+                    },
+                    // {
+                    //     time: 160,
+                    //     price: 2,
+                    //     name: "体验转盘1",
+                    // },
+                    // {
+                    //     time: 1,
+                    //     price: 2,
+                    //     name: "体验转盘1",
+                    // },
+                ],
                 curOrder: false,
                 onType: 1,
                 remainTime: null,
@@ -101,12 +122,13 @@
                 out_trade_no: null,
                 clientConfig: {},
                 showImg: false,
-                wishPayText: "免费发送心愿",
+                wishPayText: "免费发送祝福",
             };
         },
         created() {
             this.serialNumber = this.getQueryString("serialNumber");
             this.code = this.getQueryString("code");
+            this.$store.state.loading = false;
             this.login();
         },
         methods: {
@@ -219,7 +241,7 @@
                 }
                 console.log(this.gameIndex);
                 if (this.gameIndex === "") {
-                    this.$toast.fail("请先选择游戏");
+                    this.$toast.fail("请先选择行酒令");
                     return;
                 }
                 this.$axios({
@@ -233,7 +255,7 @@
                 }).then((res) => {
                     console.log(res);
                     if (res.data.success) {
-                        this.$toast.success("游戏启动成功");
+                        this.$toast.success("行酒令启动成功");
                         let result = res.result;
                     } else {
                         this.$toast.fail(res.data.message);
@@ -398,8 +420,6 @@
                         serialNumber: this.serialNumber,
                     },
                 }).then((res) => {
-                    console.log("暂停" + res);
-                    clearInterval(this.timer);
                     this.$toast.success("转盘已暂停");
                 });
             },
@@ -414,13 +434,17 @@
                         this.remainTime = this.formatSeconds(
                             this.loginUser.curOrder.remainTime
                         );
-                        if (!this.loginUser.curOrder.suspendTime) {
-                            this.timer = setInterval(() => {
-                                this.remainTime = this.formatSeconds(
-                                    --this.loginUser.curOrder.remainTime
-                                );
-                            }, 1000);
-                        }
+                        this.timer = setInterval(() => {
+                            this.remainTime = this.formatSeconds(
+                                --this.loginUser.curOrder.remainTime
+                            );
+                            if (this.loginUser.curOrder.remainTime == "0") {
+                                this.curOrder = false;
+                                this.loginUser.curOrder = {};
+                                this.remainTime = null;
+                                clearInterval(this.timer);
+                            }
+                        }, 1000);
                     }
                 }
             },
@@ -436,7 +460,7 @@
                 }).then((res) => {
                     console.log("继续" + res);
                     if (res.data.success) {
-                        this.initCurOrder(res.data.result);
+                        // this.initCurOrder(res.data.result);
                         this.$toast.success("转盘继续旋转");
                     }
                 });
@@ -515,36 +539,42 @@
                 font-size: 10px;
             }
         }
-        .radio {
-            width: 100%;
+        .radio,
+        .radio1 {
+            width: 90%;
             margin: 0 auto;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
             flex-wrap: wrap;
             .radioInfo {
-                width: 40%;
+                width: 45%;
                 border: 1px solid rgb(218, 222, 224);
                 height: 50px;
                 display: flex;
                 margin-top: 10px;
-                margin-left: 6.67%;
                 position: relative;
                 border-radius: 5px;
                 background: #fff;
                 .left {
-                    width: 40%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
+                    width: 50%;
                     color: rgb(64, 151, 248);
                     font-size: 14px;
                     border-right: 1px solid rgb(64, 151, 248);
                     height: 100%;
+                    line-height: 50px;
+                    text-align: center;
+                }
+                .middle {
+                    width: 50%;
+                    font-size: 14px;
+                    color: rgb(64, 151, 248);
+                    height: 100%;
+                    line-height: 50px;
+                    text-align: center;
                 }
                 .right {
-                    width: 60%;
+                    width: 45%;
                     display: flex;
                     height: 100%;
                     align-items: center;
@@ -597,6 +627,12 @@
                     text-align: center;
                 }
             }
+        }
+        .radio {
+            justify-content: space-around;
+        }
+        .radio1 {
+            justify-content: space-between;
         }
         .toastMon {
             width: 100%;
