@@ -26,7 +26,7 @@
     #app {
         width: 100%;
         height: 100%;
-        background: rgb(247, 248, 250);
+        background: #fff;
         position: relative;
     }
     * {

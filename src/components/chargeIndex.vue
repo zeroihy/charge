@@ -1,82 +1,75 @@
+
 <template>
+    <!-- https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx527d9308300170f5&redirect_uri=http%3A%2F%2Ftable.yunkuaichina.com%3FserialNumber%3D5202021080500005&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect -->
     <div class="charge" v-if="!$store.state.loading">
         <!-- 个人信息 -->
         <div class="user">
             <div class="icon">
                 <img :src="imgSrc" />
             </div>
-            <div class="info">
-                <p>编号:{{ serialNumber }}</p>
-                <!-- <p>{{}}</p> -->
-                <p v-show="remainTime">剩余时间:{{ remainTime }}</p>
-
+            <div class="middle" :style="remainTime?'':'background:white'">
+                <p v-show="remainTime">剩余时间</p>
+                <p v-show="remainTime">{{ remainTime }}</p>
             </div>
-            <div class="tel">客服电话:{{loginUser.clientConfig.serviceTel}}</div>
+            <div class="right">
+                <p>编号:{{ serialNumber }}</p>
+                <p>联系电话:{{loginUser.clientConfig.serviceTel}}</p>
+            </div>
         </div>
         <!-- 套餐 -->
         <div v-show="!curOrder">
-            <van-cell-group title="全自动转盘"> </van-cell-group>
-            <div class="radio">
-                <div class="radioInfo" v-for="(item, index) in testList" :key="index"
-                    @click="radioClick(index)">
-                    <!-- <div class="radioInfo"
+            <div class="buttomImg">
+                <div class="box"
                     v-for="(item, index) in loginUser.clientConfig.turntableConfigs"
-                    :key="index" @click="radioClick(index)"> -->
-                    <div class="left">
-                        <p>{{ item.time }}分钟</p>
-                    </div>
-                    <div class="middle">
-                        <p>{{ item.price }}元</p>
-                    </div>
-                    <!-- <div class="right">
-                        {{ item.name }}
-                    </div> -->
-                    <van-icon name="success" color="#1daaf6" class="success"
-                        v-show="item.show" />
+                    :key="index" @click="start()">
+                    <img src="../assets/automatic.png" />
+                    <p class="price">{{item.time}}分钟{{item.price}}元</p>
                 </div>
             </div>
-            <div class="toastMon" v-show="toastMon&&!curOrder">本次支付：{{ toastMon }}元</div>
-            <van-button type="info" style="width: 80%; margin-left: 10%" round
-                v-show="!curOrder" @click="start()">支付启动
-            </van-button>
         </div>
         <!-- 转盘操作 -->
         <div class="round" v-show="curOrder">
-            <div class="roundButton" @click="goOn">
-                继续<br>旋转
-            </div>
-            <div class="roundButton" @click="endClick">
-                中止<br>旋转
-            </div>
-            <div class="roundButton" @click="stop">
-                暂停<br>旋转
-            </div>
+            <img class="roundButton" src="../assets/goOn.png" @click="goOn" />
+            <img class="roundButton" src="../assets/endClick.png" @click="endClick" />
+            <img class="roundButton" src="../assets/stop.png" @click="stop" />
         </div>
         <!-- 心愿 -->
-        <van-cell-group title="请输入心语心愿"> </van-cell-group>
-        <van-field v-model="value" label="心语心愿" placeholder="请输入内容" />
-        <div class="toastMon" v-if="loginUser.clientConfig.textPrice!='0'">
-            本次支付：{{loginUser.clientConfig.textPrice}}元</div>
-        <van-button type="info" style="width: 80%; margin-left: 10%;margin-top:10px" round
+        <div class="wish">
+            <van-field label-width="95px" v-model="value" label="请输入祝福条文："
+                placeholder="请输入内容" />
+        </div>
+        <van-button
+            style="width: 90%; margin-left: 5%;margin-top:10px;border-radius:5px;background:#5087F0;color:#fff;height: 35px;"
             @click="wishPay()">
-            {{wishPayText}}（时间为60分钟）</van-button>
+            {{wishPayText}}</van-button>
         <!-- 游戏 -->
-        <van-cell-group title="免费行酒令"> </van-cell-group>
-        <div class="radio1">
+        <van-cell-group title="喝酒游戏免费玩"> </van-cell-group>
+        <div class="radio">
             <div v-for="(item, index) in gameList" :key="index" @click="gameClick(index)"
-                :class="item.show?'gameSInfo':'gameInfo'">
-                <p>{{item.title}}</p>
-                <van-icon name="success" color="#409eff" class="success"
-                    v-show="item.show" />
+                :class="item.show? 'gameSelect':'gameInfo'">
+                <div class="gameBox">
+                    <img :src="item.img" />
+                    <p>{{item.title}}</p>
+                </div>
             </div>
         </div>
-        <van-button type="info" style="width: 80%; margin-left: 10%" round
+        <van-button
+            style="width: 90%; margin-left: 5%;margin-top:10px;border-radius:5px;background:#5087F0;color:#fff;height: 35px;"
             @click="gameStart()">
             免费开始
         </van-button>
         <div @click="concern()" class="concernClass" v-show="!loginUser.subscribeTime">
-            点此关注公众号即可免费开始行酒令，如已关注，请重新扫码进入</div>
-        <van-dialog v-model="showImg" class="dialog" title="长按识别二维码" show-confirm-button>
+            <!-- <div @click="concern()" class="concernClass"> -->
+            点此关注公众号即可免费开始行酒令，如已关注，请重新扫码进入
+        </div>
+        <van-swipe height="110px" :show-indicators="false" :autoplay="3000" class="swipe">
+            <van-swipe-item v-for="(image, index) in images" :key="index">
+                <img :src="`${imgUrl}${image}`" class="swipeImg" />
+            </van-swipe-item>
+        </van-swipe>
+        <van-dialog v-model="showImg" class="dialog" title="长按识别二维码"
+            :show-confirm-button='false'>
+            <van-icon name="cross" class="cross" @click="showImg=false" />
             <img src="../assets/logoImg.jpg" />
         </van-dialog>
     </div>
@@ -98,23 +91,8 @@
                 loginUser: {
                     clientConfig: {},
                 },
-                testList: [
-                    {
-                        time: 60,
-                        price: 2,
-                        name: "体验转盘1",
-                    },
-                    // {
-                    //     time: 160,
-                    //     price: 2,
-                    //     name: "体验转盘1",
-                    // },
-                    // {
-                    //     time: 1,
-                    //     price: 2,
-                    //     name: "体验转盘1",
-                    // },
-                ],
+                images: [],
+                imgUrl: "",
                 curOrder: false,
                 onType: 1,
                 remainTime: null,
@@ -129,7 +107,9 @@
             this.serialNumber = this.getQueryString("serialNumber");
             this.code = this.getQueryString("code");
             this.$store.state.loading = false;
+            this.imgUrl = process.env.BASE_API + "/user/";
             this.login();
+            this.ad();
         },
         methods: {
             // 获取链接信息
@@ -138,6 +118,15 @@
                 let r = window.location.search.substr(1).match(reg);
                 if (r != null) return unescape(r[2]);
                 return null;
+            },
+            ad() {
+                this.$axios({
+                    method: "get",
+                    url: process.env.BASE_API + "/user/user/adimages",
+                }).then((res) => {
+                    this.images = res.data.result;
+                    console.log(res);
+                });
             },
             // 登录
             login() {
@@ -167,12 +156,10 @@
                                     title: item,
                                     show: false,
                                     gameIndex: index,
+                                    img: this.imgUrl + `game-${index}.png`,
                                 });
                             }
                         );
-                        if (this.loginUser.clientConfig.textPrice != "0") {
-                            this.wishPayText = "心愿支付";
-                        }
                         this.$store.state.loading = false;
                         this.initCurOrder(this.loginUser.curOrder);
                     } else {
@@ -398,7 +385,7 @@
                                                 this.initCurOrder(res.data.result);
                                             }
                                         } else {
-                                            this.$toast.success(
+                                            this.$toast.error(
                                                 "未查询到相关订单，请重新扫码"
                                             );
                                             clearInterval(thTimes);
@@ -503,136 +490,151 @@
         height: 100%;
         .user {
             width: 100%;
-            height: 80px;
+            height: 60px;
             display: flex;
-            background-image: linear-gradient(#1daaf6, #635cfc);
             position: relative;
             .icon {
-                width: 30%;
+                width: 15%;
                 height: 100%;
                 display: flex;
-                align-items: center;
                 justify-content: center;
+                align-items: center;
                 img {
-                    width: 50px;
+                    width: 30px;
                     border-radius: 50%;
                 }
             }
-            .info {
-                width: 70%;
-                height: 90%;
+            .middle {
+                width: 42.5%;
+                height: 30px;
                 display: flex;
-                align-items: center;
                 justify-content: center;
+                align-items: center;
+                font-size: 10px;
+                background: #b6cdef;
                 color: #fff;
                 flex-direction: column;
-                font-size: 12px;
-                p {
-                    width: 80%;
-                }
+                margin-top: 15px;
             }
-            .tel {
-                position: absolute;
-                bottom: 5px;
-                right: 10px;
-                color: #fff;
+            .right {
+                width: 38.5%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+                flex-direction: column;
                 font-size: 10px;
+                color: #474747;
             }
         }
-        .radio,
-        .radio1 {
-            width: 90%;
-            margin: 0 auto;
-            margin-bottom: 10px;
+        .buttomImg {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .box {
+                width: 312px;
+                height: 87px;
+                position: relative;
+                img {
+                    width: 100%;
+                    height: 100%;
+                }
+                .price {
+                    position: absolute;
+                    right: 30px;
+                    bottom: 12px;
+                    font-size: 10px;
+                    color: #fff;
+                    letter-spacing: 2px;
+                }
+            }
+        }
+        .van-cell-group__title {
+            color: #474747;
+            font-size: 10px;
+            line-height: 10px;
+        }
+        .round {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            .roundButton {
+                width: 86px;
+                height: 86px;
+            }
+        }
+        .wish {
+            width: 100%;
+            height: 58px;
+            background: #f2f2f2;
             display: flex;
             align-items: center;
-            flex-wrap: wrap;
-            .radioInfo {
-                width: 45%;
-                border: 1px solid rgb(218, 222, 224);
-                height: 50px;
-                display: flex;
-                margin-top: 10px;
-                position: relative;
-                border-radius: 5px;
-                background: #fff;
-                .left {
-                    width: 50%;
-                    color: rgb(64, 151, 248);
-                    font-size: 14px;
-                    border-right: 1px solid rgb(64, 151, 248);
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
-                }
-                .middle {
-                    width: 50%;
-                    font-size: 14px;
-                    color: rgb(64, 151, 248);
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
-                }
-                .right {
-                    width: 45%;
-                    display: flex;
-                    height: 100%;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14px;
-                }
-                .success {
-                    position: absolute;
-                    top: 2px;
-                    right: 2px;
-                }
+            justify-content: center;
+            .van-cell {
+                width: 80%;
+                height: 30px;
+                background: #dcdada;
+                border-radius: 15px;
             }
-            .gameInfo {
-                width: 20%;
-                border: 1px solid rgb(218, 222, 224);
-                height: 50px;
-                display: flex;
-                margin-top: 10px;
-                margin-left: 4%;
-                border-radius: 5px;
-                background: #fff;
-                position: relative;
-                p {
-                    width: 100%;
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
-                }
+            /deep/.van-field__label {
+                font-size: 10px;
+                line-height: 4vw;
+                color: #747474;
             }
-            .gameSInfo {
-                width: 20%;
-                height: 50px;
-                display: flex;
-                margin-top: 10px;
-                margin-left: 4%;
-                border-radius: 5px;
-                // background: #409eff;
-                border: 1px solid #409eff;
-                background: #fff;
-                position: relative;
-                .success {
-                    position: absolute;
-                    top: 2px;
-                    right: 2px;
-                }
-                p {
-                    width: 100%;
-                    height: 100%;
-                    line-height: 50px;
-                    text-align: center;
-                }
+            /deep/.van-cell__value {
+                font-size: 10px;
+                line-height: 4vw;
             }
         }
         .radio {
-            justify-content: space-around;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #f2f2f2;
+            height: 112px;
+            .gameInfo,
+            .gameSelect {
+                width: 20%;
+                height: 50px;
+                .gameBox {
+                    width: 85%;
+                    height: 50px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                    font-size: 10px;
+                    margin: 0 auto;
+                    img {
+                        width: 8vw;
+                    }
+                    p {
+                        margin-top: 3px;
+                    }
+                }
+            }
+            .gameSelect {
+                .gameBox {
+                    border: 1px solid rgb(80, 135, 240);
+                    border-radius: 5px;
+                }
+            }
         }
-        .radio1 {
-            justify-content: space-between;
+        .swipe {
+            position: absolute;
+            bottom: 5px;
+        }
+        .swipeImg {
+            width: 90%;
+            height: 100px;
+            margin: 10px auto;
+            display: block;
         }
         .toastMon {
             width: 100%;
@@ -650,32 +652,13 @@
             font-size: 10px;
             color: rgb(238, 10, 36);
         }
-        .round {
-            width: 100%;
-            height: 50px;
-            // background: red;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-top: 30px;
-            .roundButton {
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 14px;
-                // border: 2px solid rgb(85, 170, 143);
-                box-shadow: 5px 5px 5px rgb(85, 170, 143);
-                color: rgb(230, 155, 3);
-            }
-        }
     }
     .concernClass {
         width: 100%;
         text-align: center;
-        font-size: 12px;
+        font-size: 10px;
+        height: 15px;
+        line-height: 15px;
         color: rgb(238, 10, 36);
     }
     .dialog {
@@ -684,5 +667,11 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
+
+        .cross {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
     }
 </style>
