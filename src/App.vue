@@ -10,10 +10,10 @@
     export default {
         name: "App",
         data() {
-            return {};
+            return {
+                controlType: null,
+            };
         },
-        created() {},
-        methods: {},
     };
 </script>
 
