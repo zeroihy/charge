@@ -119,6 +119,12 @@
                     (res1) => {
                         console.log("支付后回执");
                         console.log(res1);
+                        if (this.text) {
+                            this.$toast.success("心愿发送成功");
+                        } else {
+                            this.$toast.success("转盘启动成功");
+                        }
+                        WeixinJSBridge.call("closeWindow");
                     }
                 );
             },

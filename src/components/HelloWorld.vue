@@ -9,6 +9,7 @@
         },
         mounted() {
             this.controlType = this.getQueryString("controlType");
+            console.log(this.controlType);
             if (this.controlType) {
                 this.$router.push("/hotelPay");
             } else {

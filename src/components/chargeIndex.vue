@@ -38,6 +38,8 @@
             <van-field label-width="95px" v-model="value" label="请输入祝福条文："
                 placeholder="请输入内容" />
         </div>
+        <div class="toastMon" v-if="loginUser.clientConfig.textPrice!='0'">
+            本次支付：{{loginUser.clientConfig.textPrice}}元</div>
         <van-button
             style="width: 90%; margin-left: 5%;margin-top:10px;border-radius:5px;background:#5087F0;color:#fff;height: 35px;"
             @click="wishPay()">
@@ -62,7 +64,8 @@
             <!-- <div @click="concern()" class="concernClass"> -->
             点此关注公众号即可免费开始行酒令，如已关注，请重新扫码进入
         </div>
-        <van-swipe height="110px" :show-indicators="false" :autoplay="3000" class="swipe">
+        <van-swipe :show-indicators="false" :autoplay="3000" class="swipe"
+            v-show='hideshow'>
             <van-swipe-item v-for="(image, index) in images" :key="index">
                 <img :src="`${imgUrl}${image}`" class="swipeImg" />
             </van-swipe-item>
@@ -101,6 +104,9 @@
                 clientConfig: {},
                 showImg: false,
                 wishPayText: "免费发送祝福",
+                docmHeight: document.documentElement.clientHeight, //默认屏幕高度
+                showHeight: "", //实时屏幕高度
+                hideshow: true, //显示或者隐藏footer
             };
         },
         created() {
@@ -110,8 +116,29 @@
             this.imgUrl = process.env.BASE_API + "/user/";
             this.login();
             this.ad();
+            this.windowHeight();
+        },
+        //监听
+        watch: {
+            showHeight: function () {
+                if (this.docmHeight > this.showHeight) {
+                    this.hideshow = false;
+                } else {
+                    this.hideshow = true;
+                }
+            },
         },
         methods: {
+            windowHeight() {
+                console.log("111");
+                console.log(this.docmHeight);
+                window.onresize = () => {
+                    return (() => {
+                        this.showHeight = document.body.clientHeight;
+                        console.log(this.showHeight);
+                    })();
+                };
+            },
             // 获取链接信息
             getQueryString(name) {
                 let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -160,6 +187,9 @@
                                 });
                             }
                         );
+                        if (this.loginUser.clientConfig.textPrice != "0") {
+                            this.wishPayText = "祝福支付";
+                        }
                         this.$store.state.loading = false;
                         this.initCurOrder(this.loginUser.curOrder);
                     } else {
@@ -270,7 +300,7 @@
                     console.log(res.data);
                     if (res.data.success) {
                         if (!res.data.result.out_trade_no) {
-                            this.$toast.success("心愿发送成功");
+                            this.$toast.success("祝福发送成功");
                         } else {
                             this.weixinInit(res.data.result, 0);
                         }
@@ -629,6 +659,8 @@
         .swipe {
             position: absolute;
             bottom: 5px;
+            width: 100%;
+            height: 85px;
         }
         .swipeImg {
             width: 90%;
